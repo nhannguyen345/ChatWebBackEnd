@@ -1,4 +1,4 @@
-package com.example.backend.entity;
+package com.example.backend.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

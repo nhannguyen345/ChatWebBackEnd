@@ -1,6 +1,8 @@
 package com.example.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,8 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.entity.AuthRequest;
-import com.example.backend.entity.User;
+import com.example.backend.model.entity.User;
+import com.example.backend.model.request.AuthRequest;
+import com.example.backend.model.response.AuthResponse;
 import com.example.backend.service.JwtService;
 import com.example.backend.service.UserService;
 
@@ -34,11 +37,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String authenticateAndgetToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> authenticateAndgetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getEmail());
+            User userLogin = (User) service.loadUserByUsername(authRequest.getEmail());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse(userLogin.getId(), userLogin.getUsername(),
+                            jwtService.generateToken(authRequest.getEmail()), true, "Login successfully!"));
         } else {
             throw new UsernameNotFoundException("Invalid email request!");
         }

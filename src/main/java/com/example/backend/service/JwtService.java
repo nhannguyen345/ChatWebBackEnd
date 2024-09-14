@@ -22,7 +22,7 @@ public class JwtService {
 
     // Get secret key
     @Value("${my.secretkey}")
-    public static String SECRET;
+    private String SECRET;
 
     // Gernerate token with given user name
     public String generateToken(String userName) {
