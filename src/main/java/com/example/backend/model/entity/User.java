@@ -1,5 +1,6 @@
 package com.example.backend.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String username;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
     private String avatarUrl;
     private String phone;
