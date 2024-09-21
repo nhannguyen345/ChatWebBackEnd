@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FriendRequestDTO {
     private int userId;
-    private int friendId;
+    private String emailReceiver;
+    private String inviteMessage;
 }

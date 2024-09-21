@@ -33,4 +33,9 @@ public class UserService implements UserDetailsService {
         repository.save(user);
         return "User Added Successfully";
     }
+
+    public User getUserByEmail(String email) {
+        Optional<User> user = repository.findByEmail(email);
+        return user.orElseThrow(() -> new RuntimeException("User not found with this email!"));
+    }
 }

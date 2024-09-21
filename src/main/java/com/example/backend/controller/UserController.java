@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +14,6 @@ import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
 import com.example.backend.model.response.AuthResponse;
 import com.example.backend.service.JwtService;
-import com.example.backend.service.UserDetailsCustom;
 import com.example.backend.service.UserService;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,15 +41,11 @@ public class UserController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            UserDetails userLogin = service.loadUserByUsername(authRequest.getEmail());
+            User userLogin = service.getUserByEmail(authRequest.getEmail());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse(userLogin.getId(), userLogin.getUsername(),
+                            jwtService.generateToken(userLogin.getUsername()), true, "Login successfully!"));
 
-            if (userLogin instanceof UserDetailsCustom) {
-                UserDetailsCustom userDetailsCustom = (UserDetailsCustom) userLogin;
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new AuthResponse(userDetailsCustom.getUsername(),
-                                jwtService.generateToken(authRequest.getEmail()), true, "Login successfully!"));
-            } else
-                throw new UsernameNotFoundException("User details not found!");
         } else {
             throw new UsernameNotFoundException("Invalid email request!");
         }
