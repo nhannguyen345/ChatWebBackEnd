@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.Notification;
@@ -21,15 +19,17 @@ public class FriendController {
     private FriendService friendService;
 
     @MessageMapping("/create-friend-request")
-    public void createNewFriendRequest(@Payload FriendRequestDTO friendRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
+    public void createNewFriendRequest(@Payload FriendRequestDTO friendRequestDTO) {
         try {
             Notification notification = friendService.createFriendRequest(friendRequestDTO);
-            simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(), "/queue/notification",
+            System.out.println(notification);
+            simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(),
+                    "/queue/notification",
                     notification);
         } catch (Exception e) {
-            simpMessagingTemplate.convertAndSendToUser(userDetails.getUsername(), "/queue/errors", e.getMessage());
+            System.out.println(e.getMessage());
+            simpMessagingTemplate.convertAndSendToUser(friendRequestDTO.getUserName(),
+                    "/queue/errors", e.getMessage());
         }
     }
 

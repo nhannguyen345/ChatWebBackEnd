@@ -54,6 +54,6 @@ public class Notification {
     private Date createdAt = new Date();
 
     public enum NotificationType {
-        FRIEND_REQUEST, MESSAGE, CALL
+        FRIEND_REQUEST, MESSAGE, FRIEND_REQUEST_ACCEPTED
     }
 }
