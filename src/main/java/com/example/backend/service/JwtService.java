@@ -25,8 +25,10 @@ public class JwtService {
     private String SECRET;
 
     // Gernerate token with given user name
-    public String generateToken(String userName) {
+    public String generateToken(int Id, String userName, String email) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userid", Id);
+        claims.put("email", email);
         return createToken(claims, userName);
     }
 
@@ -49,6 +51,17 @@ public class JwtService {
     // Extract the username from the token
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractEmail(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("email", String.class);
+    }
+
+    // Lấy userid từ token
+    public Integer extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userid", Integer.class);
     }
 
     // Extract the expiration date from the token

@@ -16,6 +16,7 @@ import com.example.backend.model.response.AuthResponse;
 import com.example.backend.service.JwtService;
 import com.example.backend.service.UserService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -44,7 +45,8 @@ public class UserController {
             User userLogin = service.getUserByEmail(authRequest.getEmail());
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new AuthResponse(userLogin.getId(), userLogin.getUsername(),
-                            jwtService.generateToken(userLogin.getUsername()), true, "Login successfully!"));
+                            jwtService.generateToken(userLogin.getId(), userLogin.getUsername(), userLogin.getEmail()),
+                            true, "Login successfully!"));
 
         } else {
             throw new UsernameNotFoundException("Invalid email request!");
