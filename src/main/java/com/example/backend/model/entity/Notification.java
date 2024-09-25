@@ -49,6 +49,9 @@ public class Notification {
     @Column(nullable = false)
     private Boolean read = false;
 
+    @Column(nullable = false)
+    private Boolean disable = false;
+
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt = new Date();

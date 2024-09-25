@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.backend.model.entity.GroupMember;
 
-public interface GroupMemberRepository extends JpaRepository<GroupMember, Integer> {
+public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
 
 }

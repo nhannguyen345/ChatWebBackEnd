@@ -35,16 +35,4 @@ public class Friend {
     @ManyToOne
     @JoinColumn(name = "friend_id", nullable = false)
     private User friend;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.PENDING;
-
-    @Column(nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt = new Date();
-
-    public enum Status {
-        PENDING, ACCEPTED, DECLINED
-    }
 }

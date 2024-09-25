@@ -8,47 +8,50 @@ import org.springframework.stereotype.Service;
 import com.example.backend.model.entity.Friend;
 import com.example.backend.model.entity.Notification;
 import com.example.backend.model.entity.User;
-import com.example.backend.model.request.FriendRequestDTO;
+import com.example.backend.model.request.FriendAndNotificationRequestDTO;
 import com.example.backend.repository.FriendRepository;
 import com.example.backend.repository.NotificationRepository;
 import com.example.backend.repository.UserRepository;
 
 @Service
 public class FriendService {
-    @Autowired
-    private FriendRepository friendRepository;
+        @Autowired
+        private FriendRepository friendRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+        @Autowired
+        private NotificationRepository notificationRepository;
 
-    public Notification createFriendRequest(FriendRequestDTO friendRequestDTO) {
-        User user = userRepository.findById(friendRequestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        User friend = userRepository.findByEmail(friendRequestDTO.getEmailReceiver())
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+        public Notification addNewFriendAndNotification(
+                        FriendAndNotificationRequestDTO friendAndNotificationRequestDTO) {
 
-        Friend friendRequest = new Friend();
-        friendRequest.setUser(user);
-        friendRequest.setFriend(friend);
-        friendRequest.setStatus(Friend.Status.PENDING); // Trạng thái mặc định là PENDING
-        friendRequest.setCreatedAt(new Date()); // Ghi lại thời điểm tạo
+                User user = userRepository.findById(friendAndNotificationRequestDTO.getUserId())
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                User userRequest = userRepository.findById(friendAndNotificationRequestDTO.getFriendId())
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Lưu yêu cầu kết bạn
-        friendRepository.save(friendRequest);
+                // Add to database
+                Friend friend1 = new Friend();
+                friend1.setUser(user);
+                friend1.setFriend(userRequest);
+                friendRepository.save(friend1);
 
-        // Tạo thông báo cho người nhận yêu cầu kết bạn
-        Notification notification = new Notification();
-        notification.setReceiver(friend); // Người nhận thông báo là người được gửi yêu cầu kết bạn
-        notification.setSender(user); // Người gửi thông báo là người gửi yêu cầu kết bạn
-        notification.setContent(user.getUsername() + " has sent you a friend request.");
-        notification.setNotificationType(Notification.NotificationType.FRIEND_REQUEST); // Loại thông báo là yêu cầu kết
-                                                                                        // bạn
-        notification.setCreatedAt(new Date()); // Ghi lại thời điểm thông báo
+                Friend friend2 = new Friend();
+                friend2.setUser(userRequest);
+                friend2.setFriend(user);
+                friendRepository.save(friend2);
 
-        // Lưu thông báo vào bảng Notification
-        return notificationRepository.save(notification);
-    }
+                Notification notification = new Notification();
+                notification.setReceiver(userRequest);
+                notification.setSender(user);
+                notification.setContent(user.getUsername() + " has accepted your friend request.");
+                notification.setNotificationType(Notification.NotificationType.FRIEND_REQUEST_ACCEPTED);
+
+                notification.setCreatedAt(new Date());
+
+                return notificationRepository.save(notification);
+        }
+
 }
