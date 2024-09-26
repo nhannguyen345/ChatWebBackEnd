@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FriendAndNotificationRequestDTO {
     private int userId;
+    private String userName;
     private int friendId;
+    private String friendName;
     private Long notificationId;
 }

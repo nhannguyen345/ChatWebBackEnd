@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.model.entity.Notification;
@@ -43,6 +44,13 @@ public class NotificationService {
 
         // Lưu thông báo vào bảng Notification
         return notificationRepository.save(notification);
+    }
+
+    public void updateReadStatusNotification(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
+
+        notificationRepository.markNotificationAsRead(user);
     }
 
     public void deleteFriendRequestNotification(Long notificationId) {

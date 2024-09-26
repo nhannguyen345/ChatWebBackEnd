@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RequestMapping("/notification")
 @RestController
@@ -47,7 +49,7 @@ public class NotificationController {
     }
 
     @GetMapping("/get-list-notifications/{id}")
-    public ResponseEntity<?> getMethodName(@PathVariable Long id) {
+    public ResponseEntity<?> getListNotifications(@PathVariable Long id) {
         try {
             List<Notification> notifications = notificationService.getListNotificationsByUserId(id);
             return ResponseEntity.status(HttpStatus.OK).body(notifications);
@@ -57,8 +59,13 @@ public class NotificationController {
         }
     }
 
+    @PutMapping("/updateReadStatus/{id}")
+    public void updateReadStatusNotification(@PathVariable int id) {
+        notificationService.updateReadStatusNotification(id);
+    }
+
     @DeleteMapping("/delete-notification/{id}")
-    public void requestMethodName(@PathVariable Long id) {
+    public void deleteFriendRequestNotification(@PathVariable Long id) {
         notificationService.deleteFriendRequestNotification(id);
     }
 
