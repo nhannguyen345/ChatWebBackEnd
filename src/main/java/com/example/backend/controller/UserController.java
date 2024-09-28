@@ -44,7 +44,7 @@ public class UserController {
         if (authentication.isAuthenticated()) {
             User userLogin = service.getUserByEmail(authRequest.getEmail());
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(new AuthResponse(userLogin.getId(), userLogin.getUsername(),
+                    .body(new AuthResponse(userLogin,
                             jwtService.generateToken(userLogin.getId(), userLogin.getUsername(), userLogin.getEmail()),
                             true, "Login successfully!"));
 

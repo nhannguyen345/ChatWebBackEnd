@@ -43,6 +43,9 @@ public class FriendService {
                 friend2.setFriend(user);
                 friendRepository.save(friend2);
 
+                // Set disable for notification friend request
+                notificationRepository.setNotificationDisable(friendAndNotificationRequestDTO.getNotificationId());
+
                 Notification notification = new Notification();
                 notification.setReceiver(userRequest);
                 notification.setSender(user);

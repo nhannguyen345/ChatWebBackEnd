@@ -1,5 +1,7 @@
 package com.example.backend.model.response;
 
+import com.example.backend.model.entity.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponse {
-    private int id;
-    private String username;
+    private User info;
     private String jwtToken;
     private boolean success;
     private String message;

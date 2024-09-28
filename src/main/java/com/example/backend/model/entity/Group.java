@@ -29,6 +29,9 @@ public class Group {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = true)
+    private String urlAvatar = "";
+
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
