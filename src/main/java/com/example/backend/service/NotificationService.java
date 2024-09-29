@@ -36,7 +36,7 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setReceiver(friend); // Người nhận thông báo là người được gửi yêu cầu kết bạn
         notification.setSender(user); // Người gửi thông báo là người gửi yêu cầu kết bạn
-        notification.setContent(user.getUsername() + " has sent you a friend request. Invite message: "
+        notification.setContent(" has sent you a friend request. Invite message: "
                 + friendRequestDTO.getInviteMessage());
         notification.setNotificationType(Notification.NotificationType.FRIEND_REQUEST); // Loại thông báo là yêu cầu kết
                                                                                         // bạn

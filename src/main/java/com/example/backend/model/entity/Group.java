@@ -30,7 +30,7 @@ public class Group {
     private String name;
 
     @Column(nullable = true)
-    private String urlAvatar = "";
+    private String avatarUrl = "";
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)

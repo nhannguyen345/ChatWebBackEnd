@@ -33,7 +33,7 @@ public class GroupService {
         // Add new group
         Group newGroup = new Group();
         newGroup.setName(groupCreationRequest.getGroupName());
-        newGroup.setUrlAvatar(groupCreationRequest.getUrlImage());
+        newGroup.setAvatarUrl(groupCreationRequest.getUrlImage());
         newGroup.setCreatedBy(user);
 
         groupRepository.save(newGroup);
