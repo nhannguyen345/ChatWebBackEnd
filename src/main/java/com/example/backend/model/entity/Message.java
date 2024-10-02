@@ -40,8 +40,11 @@ public class Message {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String content;
+
+    @Column(nullable = true)
+    private String fileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

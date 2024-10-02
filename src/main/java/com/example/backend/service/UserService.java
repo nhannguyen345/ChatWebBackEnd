@@ -38,4 +38,9 @@ public class UserService implements UserDetailsService {
         Optional<User> user = repository.findByEmail(email);
         return user.orElseThrow(() -> new RuntimeException("User not found with this email!"));
     }
+
+    public User getUserById(int userId) {
+        Optional<User> user = repository.findById(userId);
+        return user.orElseThrow(() -> new RuntimeException("User not found with this id!"));
+    }
 }

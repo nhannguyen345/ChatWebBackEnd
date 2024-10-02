@@ -14,9 +14,11 @@ import com.example.backend.model.entity.Group;
 import com.example.backend.model.entity.GroupMember;
 import com.example.backend.model.entity.Message;
 import com.example.backend.model.entity.User;
+import com.example.backend.model.request.NewMessageRequest;
 import com.example.backend.model.response.Conversation;
 import com.example.backend.repository.FriendRepository;
 import com.example.backend.repository.GroupMemberRepository;
+import com.example.backend.repository.GroupRepository;
 import com.example.backend.repository.MessageRepository;
 import com.example.backend.repository.UserRepository;
 
@@ -27,6 +29,9 @@ public class MessageService {
 
     @Autowired
     private FriendRepository friendRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Autowired
     private GroupMemberRepository groupMemberRepository;
@@ -110,5 +115,33 @@ public class MessageService {
         });
 
         return allConversations;
+    }
+
+    public Message addNewMessage(NewMessageRequest newMessageRequest) {
+
+        Message message = new Message();
+
+        User sender = userRepository.findById(newMessageRequest.getSenderId())
+                .orElseThrow(() -> new RuntimeException("Sender not found"));
+
+        message.setSender(sender);
+
+        if (newMessageRequest.getReceiverId() == null) {
+            User receiver = userRepository.findById(newMessageRequest.getReceiverId())
+                    .orElseThrow(() -> new RuntimeException("Sender not found"));
+
+            message.setReceiver(receiver);
+        } else {
+            Group group = groupRepository.findById(newMessageRequest.getGroupId())
+                    .orElseThrow(() -> new RuntimeException("Group not found"));
+
+            message.setGroup(group);
+        }
+
+        message.setContent(newMessageRequest.getContent());
+        message.setFileUrl(newMessageRequest.getFileUrl());
+        message.setMessageType(Message.MessageType.valueOf(newMessageRequest.getMessageType()));
+
+        return messageRepository.save(message);
     }
 }
