@@ -126,12 +126,12 @@ public class MessageService {
 
         message.setSender(sender);
 
-        if (newMessageRequest.getReceiverId() == null) {
+        if (newMessageRequest.getReceiverId() != null) {
             User receiver = userRepository.findById(newMessageRequest.getReceiverId())
                     .orElseThrow(() -> new RuntimeException("Sender not found"));
 
             message.setReceiver(receiver);
-        } else {
+        } else if (newMessageRequest.getGroupId() != null) {
             Group group = groupRepository.findById(newMessageRequest.getGroupId())
                     .orElseThrow(() -> new RuntimeException("Group not found"));
 

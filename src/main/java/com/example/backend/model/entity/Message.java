@@ -50,6 +50,9 @@ public class Message {
     @Column(nullable = false)
     private MessageType messageType = MessageType.TEXT;
 
+    @Column(nullable = false)
+    private Boolean read = false;
+
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt = new Date();

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewMessageRequest {
+    private String tempId;
     private int senderId;
     private Integer receiverId;
     private Long groupId;

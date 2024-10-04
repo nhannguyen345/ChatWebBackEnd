@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 
 import com.example.backend.service.JwtService;
 import com.example.backend.service.UserService;
@@ -44,6 +45,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         Authentication auth = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, null);
                         accessor.setUser(auth);
+                        // accessor.setHeaderIfAbsent("session-ws-id", accessor.getSessionId());
+                        // accessor.setSessionId(accessor.getSessionId());
+                        log.info("info websocket sessionId: {}", accessor.getSessionId());
                     } else {
                         throw new IllegalArgumentException("Token không hợp lệ");
                     }

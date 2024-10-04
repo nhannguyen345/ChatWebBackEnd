@@ -18,7 +18,9 @@ import com.example.backend.model.entity.Message;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.NewMessageRequest;
 import com.example.backend.model.response.Conversation;
+import com.example.backend.model.response.SendMessageSuccess;
 import com.example.backend.service.MessageService;
+import com.example.backend.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +36,9 @@ public class MessageController {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/get-list-messages")
     public ResponseEntity<?> getListMessagesForUser(@RequestParam int userId) {
@@ -60,17 +65,15 @@ public class MessageController {
     public void addNewMessage(@Payload NewMessageRequest newMessageRequest) {
         try {
             Message message = messageService.addNewMessage(newMessageRequest);
-            simpMessagingTemplate.convertAndSendToUser(message.getReceiver().getUsername(), "/queue/newMessage",
+            log.info("Thông tin message: {}", message);
+            simpMessagingTemplate.convertAndSendToUser(message.getReceiver().getUsername(), "/queue/new-message",
                     message);
+            simpMessagingTemplate.convertAndSendToUser(message.getSender().getUsername(), "/queue/send-mess-success",
+                    new SendMessageSuccess(newMessageRequest.getTempId(), message.getId(), "success"));
         } catch (Exception e) {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String username;
-            if (principal instanceof UserDetails) {
-                username = ((UserDetails) principal).getUsername();
-            } else {
-                username = principal.toString();
-            }
-            simpMessagingTemplate.convertAndSendToUser(username, "/queue/errors", e.getMessage());
+            String senderUsername = userService.getUserById(newMessageRequest.getSenderId()).getUsername();
+            simpMessagingTemplate.convertAndSendToUser(senderUsername, "/queue/send-mess-error",
+                    newMessageRequest.getTempId());
         }
     }
 
