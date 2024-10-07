@@ -14,6 +14,7 @@ import com.example.backend.model.entity.User;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Modifying
     @Transactional
-    @Query("SELECT f FROM Friend f WHERE f.user = :user OR f.friend = :user")
+    @Query("SELECT f FROM Friend f WHERE f.user = :user")
+    // @Query("SELECT f FROM Friend f WHERE f.user = :user OR f.friend = :user")
     List<Friend> findAllFriendsForUser(@Param("user") User user);
 }

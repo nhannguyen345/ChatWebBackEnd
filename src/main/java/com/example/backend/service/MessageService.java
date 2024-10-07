@@ -128,7 +128,7 @@ public class MessageService {
 
         if (newMessageRequest.getReceiverId() != null) {
             User receiver = userRepository.findById(newMessageRequest.getReceiverId())
-                    .orElseThrow(() -> new RuntimeException("Sender not found"));
+                    .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
             message.setReceiver(receiver);
         } else if (newMessageRequest.getGroupId() != null) {

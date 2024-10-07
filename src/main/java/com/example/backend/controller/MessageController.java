@@ -69,8 +69,9 @@ public class MessageController {
             simpMessagingTemplate.convertAndSendToUser(message.getReceiver().getUsername(), "/queue/new-message",
                     message);
             simpMessagingTemplate.convertAndSendToUser(message.getSender().getUsername(), "/queue/send-mess-success",
-                    new SendMessageSuccess(newMessageRequest.getTempId(), message.getId(), "success"));
+                    new SendMessageSuccess(newMessageRequest.getTempId(), message, "success"));
         } catch (Exception e) {
+            log.error("Lỗi xuất hiện: ", e);
             String senderUsername = userService.getUserById(newMessageRequest.getSenderId()).getUsername();
             simpMessagingTemplate.convertAndSendToUser(senderUsername, "/queue/send-mess-error",
                     newMessageRequest.getTempId());
