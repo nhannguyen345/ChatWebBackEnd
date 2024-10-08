@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.Message;
-import com.example.backend.model.entity.User;
 import com.example.backend.model.request.NewMessageRequest;
 import com.example.backend.model.response.Conversation;
 import com.example.backend.model.response.SendMessageSuccess;
