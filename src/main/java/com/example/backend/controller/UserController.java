@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
+import com.example.backend.model.request.PasswordUpdateRequest;
 import com.example.backend.model.request.PersonalInfoUpdateRequest;
+import com.example.backend.model.request.SocialInfoUpdateRequest;
 import com.example.backend.model.response.AuthResponse;
 import com.example.backend.service.JwtService;
 import com.example.backend.service.UserService;
@@ -63,6 +65,28 @@ public class UserController {
             return ResponseEntity.ok().body(updatedCount);
         } catch (Exception e) {
             log.info("Error in controller user - updatePersonalInfo: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/update-social-info")
+    public ResponseEntity<?> updateSocialInfo(@RequestBody SocialInfoUpdateRequest socialInfoUpdateRequest) {
+        try {
+            int updatedCount = service.updateUserSocialInfo(socialInfoUpdateRequest);
+            return ResponseEntity.ok().body(updatedCount);
+        } catch (Exception e) {
+            log.info("Error in controller user - updateSocialInfo: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+        try {
+            int updatedCount = service.updateUserPassword(passwordUpdateRequest);
+            return ResponseEntity.ok().body(updatedCount);
+        } catch (Exception e) {
+            log.info("Error in controller user - updatePassword: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }

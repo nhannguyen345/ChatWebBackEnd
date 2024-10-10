@@ -61,8 +61,15 @@ public class UserService implements UserDetailsService {
     }
 
     public int updateUserPassword(PasswordUpdateRequest passwordUpdateRequest) {
-        return repository.updateUserPassword(new BCryptPasswordEncoder().encode(passwordUpdateRequest.getPassword()),
-                passwordUpdateRequest.getUserId());
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        User user = repository.findById(passwordUpdateRequest.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (passwordEncoder.matches(passwordUpdateRequest.getCurrentPassword(), user.getPassword())) {
+            return repository.updateUserPassword(passwordEncoder.encode(passwordUpdateRequest.getCurrentPassword()),
+                    passwordUpdateRequest.getUserId());
+        }
+        throw new IllegalArgumentException("Error: the current password doesn't match!");
+
     }
 
 }
