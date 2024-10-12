@@ -49,6 +49,7 @@ public class NotificationController {
     public ResponseEntity<?> getListNotifications(@PathVariable Long id) {
         try {
             List<Notification> notifications = notificationService.getListNotificationsByUserId(id);
+
             return ResponseEntity.status(HttpStatus.OK).body(notifications);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

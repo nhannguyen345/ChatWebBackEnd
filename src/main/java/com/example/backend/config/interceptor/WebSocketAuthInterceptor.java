@@ -48,7 +48,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         // accessor.setSessionId(accessor.getSessionId());
                         log.info("info websocket sessionId: {}", accessor.getSessionId());
                     } else {
-                        throw new IllegalArgumentException("Token không hợp lệ");
+                        throw new IllegalArgumentException("Token is not valid!");
                     }
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Invalid Authorization Token");
