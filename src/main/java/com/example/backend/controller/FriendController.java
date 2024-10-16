@@ -9,16 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.Notification;
 import com.example.backend.model.request.FriendAndNotificationRequestDTO;
 import com.example.backend.service.FriendService;
+import com.example.backend.service.UserDetailsCustom;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Slf4j
@@ -46,11 +48,18 @@ public class FriendController {
         }
     }
 
-    @GetMapping("/get-contacts-list/{id}")
-    public ResponseEntity<?> getListContactsForUser(@PathVariable int id) {
+    @GetMapping("/get-contacts-list")
+    public ResponseEntity<?> getListContactsForUser() {
         try {
-            List<Map<String, Object>> listContacts = friendService.sortedContacts(id);
-            return ResponseEntity.ok().body(listContacts);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                log.info("Info of user in token: {}", uDetailsCustom);
+                List<Map<String, Object>> listContacts = friendService.sortedContacts(uDetailsCustom.getId());
+                return ResponseEntity.ok().body(listContacts);
+            } else {
+                throw new RuntimeException("Token contains invalid information!");
+            }
         } catch (Exception e) {
             log.info("Error at controller friend - getListContactsForUser: ", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

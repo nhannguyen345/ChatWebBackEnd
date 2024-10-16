@@ -53,8 +53,16 @@ public class NotificationService {
         notificationRepository.markNotificationAsRead(user);
     }
 
-    public void deleteFriendRequestNotification(Long notificationId) {
-        notificationRepository.deleteById(notificationId);
+    public void deleteFriendRequestNotification(int userId, Long notificationId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new UsernameNotFoundException("Notification not found: " + notificationId));
+        if (user.getUsername().equals(notification.getReceiver().getUsername())) {
+            notificationRepository.deleteById(notificationId);
+        } else {
+            throw new RuntimeException("User does not have permission to perform this request!");
+        }
     }
 
 }

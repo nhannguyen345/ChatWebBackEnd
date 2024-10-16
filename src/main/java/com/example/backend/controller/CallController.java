@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.request.CallUserRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/call")
 public class CallController {
@@ -23,7 +26,14 @@ public class CallController {
 
     @MessageMapping("/answer-call")
     public void AnswerCall(@Payload CallUserRequest callUserRequest) {
-        simpMessagingTemplate.convertAndSendToUser(callUserRequest.getFromUsername(), "/queue/answer-call",
+        simpMessagingTemplate.convertAndSendToUser(callUserRequest.getFromUsername(), "/queue/accept-call",
                 callUserRequest);
     }
+
+    @MessageMapping("/call-decline")
+    public void DeclineCall(String userNameCaller) {
+        simpMessagingTemplate.convertAndSendToUser(userNameCaller, "/queue/call-declined",
+                "The user on the other end declined the call!");
+    }
+
 }

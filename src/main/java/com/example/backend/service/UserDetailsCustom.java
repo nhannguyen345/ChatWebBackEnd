@@ -12,11 +12,13 @@ import com.example.backend.model.entity.User;
 
 public class UserDetailsCustom implements UserDetails {
 
+    private Integer id;
     private String username; // Changed from 'name' to 'username' for clarity
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserDetailsCustom(User user) {
+        this.id = user.getId();
         this.username = user.getUsername(); // Assuming 'name' is used as 'username'
         this.password = user.getPassword();
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
@@ -35,6 +37,10 @@ public class UserDetailsCustom implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     @Override

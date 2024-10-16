@@ -8,10 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.Message;
@@ -19,6 +18,7 @@ import com.example.backend.model.request.NewMessageRequest;
 import com.example.backend.model.response.Conversation;
 import com.example.backend.model.response.SendMessageSuccess;
 import com.example.backend.service.MessageService;
+import com.example.backend.service.UserDetailsCustom;
 import com.example.backend.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +40,18 @@ public class MessageController {
     private UserService userService;
 
     @PostMapping("/get-list-messages")
-    public ResponseEntity<?> getListMessagesForUser(@RequestParam int userId) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
-        log.info("username who loging: {}", username);
+    public ResponseEntity<?> getListMessagesForUser() {
         try {
-            List<Conversation> conversations = messageService.getAllMessagesForUserAndSorted(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(conversations);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                log.info("Info of user in token: {}", uDetailsCustom);
+                List<Conversation> conversations = messageService
+                        .getAllMessagesForUserAndSorted(uDetailsCustom.getId());
+                return ResponseEntity.status(HttpStatus.OK).body(conversations);
+            } else {
+                throw new RuntimeException("Token contains invalid information!");
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
