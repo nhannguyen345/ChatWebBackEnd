@@ -38,7 +38,11 @@ public class Call {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CallType callType;
+    private CallStatus callStatus;
+
+    public enum CallStatus {
+        MISSED, COMPLETED, DECLINED
+    }
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -47,7 +51,4 @@ public class Call {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endedAt;
 
-    public enum CallType {
-        AUDIO, VIDEO
-    }
 }
