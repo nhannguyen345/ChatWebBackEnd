@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +35,12 @@ public class CallService {
         call.setEndedAt(newCallRequest.getEndedAt());
 
         return callRepository.save(call);
+    }
+
+    public List<Call> getListCall(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return callRepository.findUserCall(user);
     }
 }
