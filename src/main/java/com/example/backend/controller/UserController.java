@@ -3,6 +3,8 @@ package com.example.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.event.WebSocketEventListener;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
 import com.example.backend.model.request.PasswordUpdateRequest;
@@ -28,6 +31,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/auth")
 public class UserController {
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    private WebSocketEventListener eventListener;
+
     @Autowired
     private UserService service;
 
@@ -56,6 +66,11 @@ public class UserController {
         } else {
             throw new UsernameNotFoundException("Invalid email request!");
         }
+    }
+
+    @MessageMapping("/send-online-signal")
+    public void getListUsersOnline() {
+        simpMessagingTemplate.convertAndSend("/topic/getUsersOnline", eventListener.getListUsersOnline());
     }
 
     @PostMapping("/update-personal-info")
