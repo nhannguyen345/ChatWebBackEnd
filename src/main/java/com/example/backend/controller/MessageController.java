@@ -52,7 +52,8 @@ public class MessageController {
                         .getAllMessagesForUserAndSorted(uDetailsCustom.getId());
                 return ResponseEntity.status(HttpStatus.OK).body(conversations);
             } else {
-                throw new RuntimeException("Token contains invalid information!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

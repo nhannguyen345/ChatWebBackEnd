@@ -32,17 +32,15 @@ public class NotificationService {
         User friend = userRepository.findByEmail(friendRequestDTO.getEmailReceiver())
                 .orElseThrow(() -> new RuntimeException("Friend not found"));
 
-        // Tạo thông báo cho người nhận yêu cầu kết bạn
         Notification notification = new Notification();
-        notification.setReceiver(friend); // Người nhận thông báo là người được gửi yêu cầu kết bạn
-        notification.setSender(user); // Người gửi thông báo là người gửi yêu cầu kết bạn
+        notification.setReceiver(friend);
+        notification.setSender(user);
         notification.setContent(" has sent you a friend request. Invite message: "
                 + friendRequestDTO.getInviteMessage());
-        notification.setNotificationType(Notification.NotificationType.FRIEND_REQUEST); // Loại thông báo là yêu cầu kết
-                                                                                        // bạn
-        notification.setCreatedAt(new Date()); // Ghi lại thời điểm thông báo
+        notification.setNotificationType(Notification.NotificationType.FRIEND_REQUEST);
 
-        // Lưu thông báo vào bảng Notification
+        notification.setCreatedAt(new Date());
+
         return notificationRepository.save(notification);
     }
 
