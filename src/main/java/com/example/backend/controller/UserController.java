@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.event.WebSocketEventListener;
+import com.example.backend.model.entity.GroupMember;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
 import com.example.backend.model.request.PasswordUpdateRequest;
 import com.example.backend.model.request.PersonalInfoUpdateRequest;
 import com.example.backend.model.request.SocialInfoUpdateRequest;
 import com.example.backend.model.response.AuthResponse;
+import com.example.backend.service.GroupService;
 import com.example.backend.service.JwtService;
 import com.example.backend.service.UserService;
 
@@ -42,6 +46,9 @@ public class UserController {
     private UserService service;
 
     @Autowired
+    private GroupService groupService;
+
+    @Autowired
     private JwtService jwtService;
 
     @Autowired
@@ -58,10 +65,15 @@ public class UserController {
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
             User userLogin = service.getUserByEmail(authRequest.getEmail());
+
+            // Get all group which user in
+            List<GroupMember> list = groupService.getListGroupsForUser(userLogin);
+
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new AuthResponse(userLogin,
                             jwtService.generateToken(userLogin.getId(), userLogin.getUsername(),
-                                    userLogin.getEmail())));
+                                    userLogin.getEmail()),
+                            list));
 
         } else {
             throw new UsernameNotFoundException("Invalid email request!");

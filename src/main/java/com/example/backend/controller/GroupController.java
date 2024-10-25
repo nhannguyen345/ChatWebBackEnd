@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.model.entity.GroupMember;
 import com.example.backend.model.request.GroupCreationRequest;
+import com.example.backend.model.request.GroupMemberRequest;
 import com.example.backend.model.response.Conversation;
 import com.example.backend.service.GroupService;
 import com.example.backend.service.UserDetailsCustom;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/group")
@@ -26,13 +29,18 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
+    @PostMapping("/get-members-group")
+    public List<GroupMember> getListMembersOfGroup(@RequestBody GroupMemberRequest groupMemberRequest) {
+        return groupService.getListGroupMembersForUser(groupMemberRequest.getGroupId());
+    }
+
     @PostMapping("/create-new-group")
     public ResponseEntity<?> createNewGroup(@RequestBody GroupCreationRequest groupCreationRequest) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
                 UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
-                if (groupCreationRequest.getListUsers().size() < 3) {
+                if (groupCreationRequest.getListUsers().size() < 2) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("A group must have more than two people!");
                 }

@@ -1,7 +1,9 @@
 package com.example.backend.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,16 @@ public class GroupService {
 
     @Autowired
     private GroupMemberRepository groupMemberRepository;
+
+    public List<GroupMember> getListGroupsForUser(User user) {
+        return groupMemberRepository.findAllGroupsForUser(user);
+    }
+
+    public List<GroupMember> getListGroupMembersForUser(long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+        return groupMemberRepository.findByGroup(group);
+    }
 
     @Transactional
     public List<GroupMember> addNewGroup(GroupCreationRequest groupCreationRequest, int userId) {
@@ -94,9 +106,13 @@ public class GroupService {
                     notification.setContent(" has add you to new group (" + groupCreationRequest.getGroupName() + ")");
                     notification.setNotificationType(NotificationType.ADD_NEW_GROUP);
 
+                    Map<String, Object> notificationAndGroupInfo = new HashMap<>();
+                    notificationAndGroupInfo.put("notification", notificationRepository.save(notification));
+                    notificationAndGroupInfo.put("groupMember", groupMember);
+
                     simpMessagingTemplate.convertAndSendToUser(groupMember.getUser().getUsername(),
                             "/queue/notification",
-                            notificationRepository.save(notification));
+                            notificationAndGroupInfo);
                 }
             }
         } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +70,17 @@ public class MessageController {
         try {
             Message message = messageService.addNewMessage(newMessageRequest);
             log.info("Thông tin message: {}", message);
-            simpMessagingTemplate.convertAndSendToUser(message.getReceiver().getUsername(), "/queue/new-message",
-                    message);
+            if (newMessageRequest.getReceiverId() != null) {
+                simpMessagingTemplate.convertAndSendToUser(message.getReceiver().getUsername(), "/queue/new-message",
+                        message);
+            } else if (newMessageRequest.getGroupId() != null) {
+                Instant createdAtInstant = message.getGroup().getCreatedAt().toInstant();
+                String formattedCreatedAt = DateTimeFormatter.ISO_INSTANT.format(createdAtInstant);
+                log.info("Time of group: {}", formattedCreatedAt);
+                simpMessagingTemplate.convertAndSend("/topic/group/" + message.getGroup().getId() + "_"
+                        + message.getGroup().getName() + "_" + formattedCreatedAt, message);
+            }
+
             simpMessagingTemplate.convertAndSendToUser(message.getSender().getUsername(), "/queue/send-mess-success",
                     new SendMessageSuccess(newMessageRequest.getTempId(), message, "success"));
         } catch (Exception e) {
