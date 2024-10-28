@@ -20,6 +20,7 @@ import com.example.backend.model.entity.Notification.NotificationType;
 import com.example.backend.model.request.GroupCreationRequest;
 import com.example.backend.repository.GroupMemberRepository;
 import com.example.backend.repository.GroupRepository;
+import com.example.backend.repository.MessageRepository;
 import com.example.backend.repository.NotificationRepository;
 import com.example.backend.repository.UserRepository;
 
@@ -43,6 +44,9 @@ public class GroupService {
 
     @Autowired
     private GroupMemberRepository groupMemberRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     public List<GroupMember> getListGroupsForUser(User user) {
         return groupMemberRepository.findAllGroupsForUser(user);
@@ -121,4 +125,28 @@ public class GroupService {
         }
         return CompletableFuture.completedFuture(null);
     }
+
+    public void deleteMemberFromGroup(int userId, Long groupId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        List<GroupMember> lGroupMembers = groupMemberRepository.findByGroup(group);
+
+        if (groupMemberRepository.findByGroupAndUser(group, user).isPresent()) {
+            throw new IllegalArgumentException("User is not in this group");
+        }
+
+        // *delete member
+        groupMemberRepository.deleteMemberFromGroup(user, group);
+
+        // *check number of member in group
+        if (lGroupMembers.size() == 1) {
+            groupRepository.delete(group);
+            messageRepository.deleteMessagesOfGroup(group);
+        }
+    }
+
 }

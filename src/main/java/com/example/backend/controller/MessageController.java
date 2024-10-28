@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.event.WebSocketEventListener;
 import com.example.backend.model.entity.Message;
 import com.example.backend.model.request.NewMessageRequest;
 import com.example.backend.model.response.Conversation;
@@ -27,7 +26,6 @@ import com.example.backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Slf4j
 @RestController
