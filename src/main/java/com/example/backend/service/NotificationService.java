@@ -63,4 +63,11 @@ public class NotificationService {
         }
     }
 
+    public void deleteAllNotificationsForUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+
+        notificationRepository.deleteAllNotificationForUser(user);
+    }
+
 }

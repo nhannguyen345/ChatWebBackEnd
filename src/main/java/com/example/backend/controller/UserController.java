@@ -10,8 +10,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.event.WebSocketEventListener;
@@ -24,11 +26,13 @@ import com.example.backend.model.request.SocialInfoUpdateRequest;
 import com.example.backend.model.response.AuthResponse;
 import com.example.backend.service.GroupService;
 import com.example.backend.service.JwtService;
+import com.example.backend.service.UserDetailsCustom;
 import com.example.backend.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
@@ -85,33 +89,91 @@ public class UserController {
         simpMessagingTemplate.convertAndSend("/topic/getUsersOnline", eventListener.getListUsersOnline());
     }
 
-    @PostMapping("/update-personal-info")
+    // try {
+    // Authentication authentication =
+    // SecurityContextHolder.getContext().getAuthentication();
+    // if (authentication != null && authentication.getPrincipal() instanceof
+    // UserDetailsCustom) {
+    // UserDetailsCustom uDetailsCustom = (UserDetailsCustom)
+    // authentication.getPrincipal();
+    // groupService.deleteMemberFromGroup(uDetailsCustom.getId(), groupId);
+    // return ResponseEntity.ok().body(null);
+    // } else {
+    // return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    // .body("Token contains invalid information!");
+    // }
+    // } catch (Exception e) {
+    // System.out.println(e.getMessage());
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error
+    // has occurred!");
+    // }
+
+    @PutMapping("/update-personal-info")
     public ResponseEntity<?> updatePersonalInfo(@RequestBody PersonalInfoUpdateRequest personalInfoUpdateRequest) {
         try {
-            int updatedCount = service.updateUserPersonalInfo(personalInfoUpdateRequest);
-            return ResponseEntity.ok().body(updatedCount);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                int updatedCount = service.updateUserPersonalInfo(uDetailsCustom.getId(), personalInfoUpdateRequest);
+                return ResponseEntity.ok().body(updatedCount);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
+            }
         } catch (Exception e) {
             log.info("Error in controller user - updatePersonalInfo: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @PostMapping("/update-social-info")
+    @PutMapping("/update-social-info")
     public ResponseEntity<?> updateSocialInfo(@RequestBody SocialInfoUpdateRequest socialInfoUpdateRequest) {
         try {
-            int updatedCount = service.updateUserSocialInfo(socialInfoUpdateRequest);
-            return ResponseEntity.ok().body(updatedCount);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                int updatedCount = service.updateUserSocialInfo(uDetailsCustom.getId(), socialInfoUpdateRequest);
+                return ResponseEntity.ok().body(updatedCount);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
+            }
         } catch (Exception e) {
             log.info("Error in controller user - updateSocialInfo: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @PostMapping("/update-password")
+    @PutMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest passwordUpdateRequest) {
         try {
-            int updatedCount = service.updateUserPassword(passwordUpdateRequest);
-            return ResponseEntity.ok().body(updatedCount);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                int updatedCount = service.updateUserPassword(uDetailsCustom.getId(), passwordUpdateRequest);
+                return ResponseEntity.ok().body(updatedCount);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
+            }
+        } catch (Exception e) {
+            log.info("Error in controller user - updatePassword: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/update-avatar")
+    public ResponseEntity<?> updateAvatarUrl(@RequestParam String avatarUrl) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                int updatedCount = service.updateUserAvatar(uDetailsCustom.getId(), avatarUrl);
+                return ResponseEntity.ok().body(updatedCount);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
+            }
         } catch (Exception e) {
             log.info("Error in controller user - updatePassword: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

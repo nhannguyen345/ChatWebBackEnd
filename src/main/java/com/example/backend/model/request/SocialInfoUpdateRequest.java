@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SocialInfoUpdateRequest {
-    private int userId;
+    // private int userId;
     private String fbLink;
     private String instaLink;
     private String twitterLink;

@@ -135,7 +135,7 @@ public class GroupService {
 
         List<GroupMember> lGroupMembers = groupMemberRepository.findByGroup(group);
 
-        if (groupMemberRepository.findByGroupAndUser(group, user).isPresent()) {
+        if (!groupMemberRepository.findByGroupAndUser(group, user).isPresent()) {
             throw new IllegalArgumentException("User is not in this group");
         }
 

@@ -62,7 +62,8 @@ public class NotificationController {
                         .getListNotificationsByUserId(uDetailsCustom.getId());
                 return ResponseEntity.status(HttpStatus.OK).body(notifications);
             } else {
-                throw new RuntimeException("Token contains invalid information!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -87,18 +88,40 @@ public class NotificationController {
     }
 
     @DeleteMapping("/delete-notification/{id}")
-    public void deleteFriendRequestNotification(@PathVariable Long id) {
+    public ResponseEntity<?> deleteFriendRequestNotification(@PathVariable Long id) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
                 UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
                 log.info("Info of user in token: {}", uDetailsCustom);
                 notificationService.deleteFriendRequestNotification(uDetailsCustom.getId(), id);
+                return ResponseEntity.ok().body(null);
             } else {
-                throw new RuntimeException("Token contains invalid information!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error has occurred!");
+        }
+    }
 
+    @DeleteMapping("/delete-all-notifications")
+    public ResponseEntity<?> deleteAllNotificationsForUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsCustom) {
+                UserDetailsCustom uDetailsCustom = (UserDetailsCustom) authentication.getPrincipal();
+                log.info("Info of user in token: {}", uDetailsCustom);
+                notificationService.deleteAllNotificationsForUser(uDetailsCustom.getId());
+                return ResponseEntity.ok().body(null);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Token contains invalid information!");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error has occurred!");
         }
     }
 

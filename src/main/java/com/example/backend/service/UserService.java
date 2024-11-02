@@ -47,28 +47,45 @@ public class UserService implements UserDetailsService {
         return user.orElseThrow(() -> new RuntimeException("User not found with this id!"));
     }
 
-    public int updateUserPersonalInfo(PersonalInfoUpdateRequest personalInfoUpdateRequest) {
-        return repository.updateUserPersonalInfo(
-                PersonalInfoUpdateRequest.convertBitrhdate(personalInfoUpdateRequest.getBirthdate()),
-                personalInfoUpdateRequest.getPhone(), personalInfoUpdateRequest.getAddress(),
-                personalInfoUpdateRequest.getUserId());
+    public int updateUserPersonalInfo(int userId, PersonalInfoUpdateRequest personalInfoUpdateRequest) {
+        if (repository.findById(userId).isPresent()) {
+            return repository.updateUserPersonalInfo(
+                    PersonalInfoUpdateRequest.convertBitrhdate(personalInfoUpdateRequest.getBirthdate()),
+                    personalInfoUpdateRequest.getPhone(), personalInfoUpdateRequest.getAddress(),
+                    userId);
+        }
+        throw new IllegalArgumentException("User not found!");
     }
 
-    public int updateUserSocialInfo(SocialInfoUpdateRequest socialInfoUpdateRequest) {
-        return repository.updateUserSocialInfo(socialInfoUpdateRequest.getFbLink(),
-                socialInfoUpdateRequest.getInstaLink(), socialInfoUpdateRequest.getTwitterLink(),
-                socialInfoUpdateRequest.getUserId());
+    public int updateUserSocialInfo(int userId, SocialInfoUpdateRequest socialInfoUpdateRequest) {
+        if (repository.findById(userId).isPresent()) {
+            return repository.updateUserSocialInfo(socialInfoUpdateRequest.getFbLink(),
+                    socialInfoUpdateRequest.getInstaLink(), socialInfoUpdateRequest.getTwitterLink(),
+                    userId);
+        }
+
+        throw new IllegalArgumentException("User not found!");
+
     }
 
-    public int updateUserPassword(PasswordUpdateRequest passwordUpdateRequest) {
+    public int updateUserPassword(int userId, PasswordUpdateRequest passwordUpdateRequest) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        User user = repository.findById(passwordUpdateRequest.getUserId())
+        User user = repository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (passwordEncoder.matches(passwordUpdateRequest.getCurrentPassword(), user.getPassword())) {
             return repository.updateUserPassword(passwordEncoder.encode(passwordUpdateRequest.getCurrentPassword()),
-                    passwordUpdateRequest.getUserId());
+                    userId);
         }
         throw new IllegalArgumentException("Error: the current password doesn't match!");
+
+    }
+
+    public int updateUserAvatar(int userId, String avatarUrl) {
+        if (repository.findById(userId).isPresent()) {
+            return repository.updateUserAvatar(userId, avatarUrl);
+        }
+
+        throw new IllegalArgumentException("User not found!");
 
     }
 
