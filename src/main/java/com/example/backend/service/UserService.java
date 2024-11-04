@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,17 +11,25 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.model.entity.PasswordResetToken;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.PasswordUpdateRequest;
 import com.example.backend.model.request.PersonalInfoUpdateRequest;
 import com.example.backend.model.request.SocialInfoUpdateRequest;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.service.email.EmailService;
 
 @Service
 public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordResetTokenService passwordResetTokenService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -87,6 +97,31 @@ public class UserService implements UserDetailsService {
 
         throw new IllegalArgumentException("User not found!");
 
+    }
+
+    public Boolean checkEmailAndSendResetLinkToUser(String email) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Email is invalid!"));
+
+        PasswordResetToken passwordResetToken = passwordResetTokenService.createNewPassReset(user);
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("username", user.getUsername());
+        templateModel.put("resetLink",
+                "http://localhost:5173/change-password?token=" + passwordResetToken.getTokenHash());
+
+        emailService.sendEmailWithTemplate(email, "Reset password", "reset-password-template", templateModel);
+
+        return true;
+
+    }
+
+    public PasswordResetToken checkToken(String token) {
+        return passwordResetTokenService.checkToken(token);
+    }
+
+    public int updateStatusToken(String token) {
+        return passwordResetTokenService.updateStatusToken(token);
     }
 
 }

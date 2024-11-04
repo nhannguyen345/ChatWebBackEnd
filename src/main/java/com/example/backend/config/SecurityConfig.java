@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/confirm-email").permitAll()
                         .requestMatchers("/chat-web-websocket/**").permitAll() // "/chat-web-websocket/**"
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess

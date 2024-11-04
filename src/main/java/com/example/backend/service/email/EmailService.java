@@ -1,8 +1,11 @@
-package com.example.backend.service;
+package com.example.backend.service.email;
 
 import java.util.Map;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,8 @@ public class EmailService {
             helper.setText(htmlContent, true);
 
             emailSender.send(message);
+        } catch (MailException e) {
+            throw new RuntimeException("Failed to send email: ", e);
         } catch (MessagingException e) {
             throw new RuntimeException("Error sending email", e);
         }

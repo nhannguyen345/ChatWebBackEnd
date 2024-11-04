@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.event.WebSocketEventListener;
 import com.example.backend.model.entity.GroupMember;
+import com.example.backend.model.entity.PasswordResetToken;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
 import com.example.backend.model.request.PasswordUpdateRequest;
@@ -34,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Slf4j
 @RestController
@@ -88,25 +91,6 @@ public class UserController {
     public void getListUsersOnline() {
         simpMessagingTemplate.convertAndSend("/topic/getUsersOnline", eventListener.getListUsersOnline());
     }
-
-    // try {
-    // Authentication authentication =
-    // SecurityContextHolder.getContext().getAuthentication();
-    // if (authentication != null && authentication.getPrincipal() instanceof
-    // UserDetailsCustom) {
-    // UserDetailsCustom uDetailsCustom = (UserDetailsCustom)
-    // authentication.getPrincipal();
-    // groupService.deleteMemberFromGroup(uDetailsCustom.getId(), groupId);
-    // return ResponseEntity.ok().body(null);
-    // } else {
-    // return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-    // .body("Token contains invalid information!");
-    // }
-    // } catch (Exception e) {
-    // System.out.println(e.getMessage());
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error
-    // has occurred!");
-    // }
 
     @PutMapping("/update-personal-info")
     public ResponseEntity<?> updatePersonalInfo(@RequestBody PersonalInfoUpdateRequest personalInfoUpdateRequest) {
@@ -177,6 +161,37 @@ public class UserController {
         } catch (Exception e) {
             log.info("Error in controller user - updatePassword: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/confirm-email")
+    public ResponseEntity<?> checkEmailAndSendResetLink(@RequestBody String email) {
+        try {
+            return ResponseEntity.ok().body(service.checkEmailAndSendResetLinkToUser(email));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/check-token/{token}")
+    public ResponseEntity<?> checkTokenFromUser(@PathVariable String token) {
+        try {
+            return ResponseEntity.ok().body(service.checkToken(token));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/change-pass/{token}")
+    public ResponseEntity<?> putMethodName(@PathVariable String token,
+            @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+        try {
+            PasswordResetToken passwordResetToken = service.checkToken(token);
+            int updatedCount = service.updateUserPassword(passwordResetToken.getUser().getId(), passwordUpdateRequest);
+            service.updateStatusToken(token);
+            return ResponseEntity.ok().body(updatedCount);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
