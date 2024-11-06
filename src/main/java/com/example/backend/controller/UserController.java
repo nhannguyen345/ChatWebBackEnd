@@ -21,6 +21,8 @@ import com.example.backend.model.entity.GroupMember;
 import com.example.backend.model.entity.PasswordResetToken;
 import com.example.backend.model.entity.User;
 import com.example.backend.model.request.AuthRequest;
+import com.example.backend.model.request.ChangePasswordDTO;
+import com.example.backend.model.request.EmailRequestDTO;
 import com.example.backend.model.request.PasswordUpdateRequest;
 import com.example.backend.model.request.PersonalInfoUpdateRequest;
 import com.example.backend.model.request.SocialInfoUpdateRequest;
@@ -62,8 +64,12 @@ public class UserController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
-    public String addnewuser(@RequestBody User user) {
-        return service.addUser(user);
+    public ResponseEntity<?> addnewuser(@RequestBody User user) {
+        try {
+            return ResponseEntity.ok().body(service.addUser(user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e);
+        }
     }
 
     @PostMapping("/login")
@@ -165,9 +171,9 @@ public class UserController {
     }
 
     @PostMapping("/confirm-email")
-    public ResponseEntity<?> checkEmailAndSendResetLink(@RequestBody String email) {
+    public ResponseEntity<?> checkEmailAndSendResetLink(@RequestBody EmailRequestDTO eRequestDTO) {
         try {
-            return ResponseEntity.ok().body(service.checkEmailAndSendResetLinkToUser(email));
+            return ResponseEntity.ok().body(service.checkEmailAndSendResetLinkToUser(eRequestDTO.getEmail()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -184,12 +190,12 @@ public class UserController {
 
     @PutMapping("/change-pass/{token}")
     public ResponseEntity<?> putMethodName(@PathVariable String token,
-            @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+            @RequestBody ChangePasswordDTO cPasswordDTO) {
         try {
             PasswordResetToken passwordResetToken = service.checkToken(token);
-            int updatedCount = service.updateUserPassword(passwordResetToken.getUser().getId(), passwordUpdateRequest);
-            service.updateStatusToken(token);
-            return ResponseEntity.ok().body(updatedCount);
+            return ResponseEntity.ok()
+                    .body(service.updatePasswordAndStatusToken(passwordResetToken.getUser().getId(), token,
+                            cPasswordDTO.getPassword()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

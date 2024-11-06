@@ -40,11 +40,15 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
-    public String addUser(User user) {
+    public User addUser(User user) {
+        if (repository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        } else if (repository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
         // Encode password before saving the user
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        repository.save(user);
-        return "User Added Successfully";
+        return repository.save(user);
     }
 
     public User getUserByEmail(String email) {
@@ -106,7 +110,7 @@ public class UserService implements UserDetailsService {
         PasswordResetToken passwordResetToken = passwordResetTokenService.createNewPassReset(user);
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("username", user.getUsername());
+        templateModel.put("userName", user.getUsername());
         templateModel.put("resetLink",
                 "http://localhost:5173/change-password?token=" + passwordResetToken.getTokenHash());
 
@@ -120,8 +124,12 @@ public class UserService implements UserDetailsService {
         return passwordResetTokenService.checkToken(token);
     }
 
-    public int updateStatusToken(String token) {
-        return passwordResetTokenService.updateStatusToken(token);
+    public int updatePasswordAndStatusToken(int userId, String token, String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        int updatedCountPass = repository.updateUserPassword(passwordEncoder.encode(password), userId);
+        int updatedCountToken = passwordResetTokenService.updateStatusToken(token);
+        ;
+        return updatedCountPass + updatedCountToken;
     }
 
 }
