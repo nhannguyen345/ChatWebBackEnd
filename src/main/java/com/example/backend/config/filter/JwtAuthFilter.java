@@ -56,10 +56,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 log.info("Current Authentication: {}", SecurityContextHolder.getContext().getAuthentication());
             } else {
-                log.warn("Token validation failed");
+                log.error("Token validation failed");
             }
         } else {
-            log.info("No token or Authentication already set in the context");
+            log.error("No token or Authentication already set in the context");
         }
 
         // Continue the filter chain

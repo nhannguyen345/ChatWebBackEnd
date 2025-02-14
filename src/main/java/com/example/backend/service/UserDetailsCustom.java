@@ -13,13 +13,13 @@ import com.example.backend.model.entity.User;
 public class UserDetailsCustom implements UserDetails {
 
     private Integer id;
-    private String username; // Changed from 'name' to 'username' for clarity
+    private String username;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserDetailsCustom(User user) {
         this.id = user.getId();
-        this.username = user.getUsername(); // Assuming 'name' is used as 'username'
+        this.username = user.getUsername();
         this.password = user.getPassword();
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
@@ -45,22 +45,22 @@ public class UserDetailsCustom implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Implement your logic if you need this
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Implement your logic if you need this
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Implement your logic if you need this
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Implement your logic if you need this
+        return true;
     }
 
 }

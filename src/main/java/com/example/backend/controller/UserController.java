@@ -76,21 +76,16 @@ public class UserController {
     public ResponseEntity<AuthResponse> authenticateAndgetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
-        if (authentication.isAuthenticated()) {
-            User userLogin = service.getUserByEmail(authRequest.getEmail());
 
-            // Get all group which user in
-            List<GroupMember> list = groupService.getListGroupsForUser(userLogin);
+        User userLogin = service.getUserByEmail(authRequest.getEmail());
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new AuthResponse(userLogin,
-                            jwtService.generateToken(userLogin.getId(), userLogin.getUsername(),
-                                    userLogin.getEmail()),
-                            list));
+        List<GroupMember> list = groupService.getListGroupsForUser(userLogin);
 
-        } else {
-            throw new UsernameNotFoundException("Invalid email request!");
-        }
+        return ResponseEntity.ok(
+                new AuthResponse(userLogin,
+                        jwtService.generateToken(userLogin.getId(), userLogin.getUsername(),
+                                userLogin.getEmail()),
+                        list));
     }
 
     @MessageMapping("/send-online-signal")
