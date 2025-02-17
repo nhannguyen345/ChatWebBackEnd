@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.backend.model.entity.PasswordResetToken;
 
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
-    @Transactional
     @Query("SELECT p FROM PasswordResetToken p WHERE p.tokenHash = :tokenHash AND p.expirationTime >= CURRENT_TIMESTAMP AND p.used = false")
     Optional<PasswordResetToken> getValidResetTokensForUser(@Param("tokenHash") String tokenHash);
 
