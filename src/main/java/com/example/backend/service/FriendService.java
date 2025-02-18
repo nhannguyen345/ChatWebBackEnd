@@ -105,9 +105,13 @@ public class FriendService {
 
                 if (deletedRows > 0) {
                         CompletableFuture<Void> future = deleteAllMessageForTwoUsers(user1, user2);
-                        future.exceptionally(e -> {
-                                log.info("Error at addNewGroup - GroupService: {}", e.getMessage());
-                                return null;
+                        future.handle((result, e) -> {
+                                if (e != null) {
+                                        log.info("Error at addNewGroup - GroupService: {}", e.getMessage());
+                                        throw new RuntimeException(e.getMessage());
+                                }
+
+                                return result;
                         });
 
                         Notification notification = new Notification();
