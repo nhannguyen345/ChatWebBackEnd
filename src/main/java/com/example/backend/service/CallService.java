@@ -2,45 +2,12 @@ package com.example.backend.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.backend.model.entity.Call;
-import com.example.backend.model.entity.User;
 import com.example.backend.model.request.NewCallRequest;
-import com.example.backend.repository.CallRepository;
-import com.example.backend.repository.UserRepository;
 
-@Service
-public class CallService {
+public interface CallService {
 
-    @Autowired
-    private CallRepository callRepository;
+    public Call addNewCall(NewCallRequest newCallRequest, int userId);
 
-    @Autowired
-    private UserRepository userRepository;
-
-    public Call addNewCall(NewCallRequest newCallRequest, int userId) {
-        User caller = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Caller not found"));
-
-        User receiver = userRepository.findByUsername(newCallRequest.getReceiverUsername())
-                .orElseThrow(() -> new RuntimeException("Receiver not found"));
-
-        Call call = new Call();
-        call.setCaller(caller);
-        call.setReceiver(receiver);
-        call.setCallStatus(Call.CallStatus.valueOf(newCallRequest.getCallStatus()));
-        call.setStartedAt(newCallRequest.getStartedAt());
-        call.setEndedAt(newCallRequest.getEndedAt());
-
-        return callRepository.save(call);
-    }
-
-    public List<Call> getListCall(int userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return callRepository.findUserCall(user);
-    }
+    public List<Call> getListCall(int userId);
 }
